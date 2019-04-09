@@ -20,7 +20,7 @@ jobs:
       services:
         - docker
       script: |
-        set -ex
+        set -e
         docker build -t $IMAGE:$TRAVIS_COMMIT --build-arg "REVISION=$TRAVIS_COMMIT" --build-arg "BRANCH=$TRAVIS_BRANCH" .
         docker tag $IMAGE:$TRAVIS_COMMIT $IMAGE:latest
 
