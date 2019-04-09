@@ -1,0 +1,17 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: '{{.ArtifactId}}'
+  namespace: '{{.GroupId}}'
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/configuration-snippet: 'more_set_headers "X-Ingress: {{.GroupId}}/{{.ArtifactId}}";'
+    nginx.ingress.kubernetes.io/x-forwarded-prefix: 'true'
+spec:
+  rules:
+    - http:
+        paths:
+          - path: '/{{.GroupId}}'
+            backend:
+              serviceName: '{{.ArtifactId}}'
+              servicePort: 8080

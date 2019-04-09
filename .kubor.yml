@@ -1,0 +1,14 @@
+groupId: demo1
+artifactId: app
+
+values:
+  - imagePrefix: 'levertonai/kubor-'
+    podMinMemory:  25Mi
+    podMaxMemory:  75Mi
+    podMinCpu:     250m
+    podMaxCpu:     500m
+    replicas:      2
+
+    readyAfter:  '15s'
+    exitAfter:   '0'
+    exitCode:    '1'

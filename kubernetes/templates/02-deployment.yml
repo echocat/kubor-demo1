@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{.ArtifactId}}
+  namespace: {{.GroupId}}
+spec:
+  replicas: {{.Values.replicas}}
+  selector:
+    matchLabels:
+      name: {{.ArtifactId}}
+  template:
+    metadata:
+      labels:
+        name: {{.ArtifactId}}
+    spec:
+      containers:
+        - name: service
+          image:  {{.Values.imagePrefix}}{{.GroupId}}:{{.Release}}
+          imagePullPolicy: Always
+          args:
+            - '--readyAfter={{.Values.readyAfter}}'
+            - '--exitAfter={{.Values.exitAfter}}'
+            - '--exitCode={{.Values.exitCode}}'
+          ports:
+            - containerPort: 8080
+          resources:
+            limits:
+              cpu: {{.Values.podMaxCpu}}
+              memory: {{.Values.podMaxMemory}}
+            requests:
+              cpu: {{.Values.podMinCpu}}
+              memory: {{.Values.podMinMemory}}
+          readinessProbe:
+            failureThreshold: 5
+            httpGet:
+              path: /healthz
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 3
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 15
+          livenessProbe:
+            failureThreshold: 5
+            httpGet:
+              path: /healthz
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 3
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 15

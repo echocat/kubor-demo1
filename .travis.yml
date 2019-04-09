@@ -1,0 +1,54 @@
+language: go
+go:
+  - 1.12.x
+install: skip
+os:
+  - linux
+services:
+  - docker
+env:
+  global:
+    - CGO_ENABLED=0
+    - GOOS=linux
+    - GOARCH=amd64
+    - IMAGE=levertonai/kubor-demo1
+script: skip
+
+jobs:
+  include:
+    - stage: test:unit
+      script:
+        - go test -v ./..
+
+    - stage: build
+      script:
+        - docker build -t $IMAGE:$TRAVIS_COMMIT --build-arg "REVISION=$TRAVIS_COMMIT" --build-arg "BRANCH=$TRAVIS_BRANCH" .
+        - docker tag $IMAGE:$TRAVIS_COMMIT $IMAGE:latest
+      after_script: |
+        set -ex
+        if [ "$TRAVIS_BRANCH" == "master" ]; then
+          echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+          docker push -t $IMAGE:$TRAVIS_COMMIT
+          docker push -t $IMAGE:latest
+        else
+          echo "Not master; means no push required."
+        fi
+
+    - stage: test:kubernetes
+      script:
+        # TODO! Provide this contexts, really - and remove mock
+        - ./kuborw --kubeconfig=mock   --context=qa.kubordemo.leverton.dev apply --dryRun=only
+        - ./kuborw --kubeconfig=mock --context=prod.kubordemo.leverton.dev apply --dryRun=only
+
+    - stage: deploy:qa
+      if: branch = master
+      script:
+        # TODO! Provide this contexts, really
+        - ./kuborw   --context=qa.kubordemo.leverton.dev apply || true
+
+    - stage: deploy:prod
+      if: branch = master
+      script:
+        # TODO! Provide this contexts, really
+        - ./kuborw --context=prod.kubordemo.leverton.dev apply || true
+
