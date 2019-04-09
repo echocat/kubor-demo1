@@ -18,7 +18,7 @@ jobs:
   include:
     - stage: test:unit
       script:
-        - go test -v ./..
+        - go test -v ./...
 
     - stage: build
       script:
