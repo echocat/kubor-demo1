@@ -19,17 +19,15 @@ jobs:
     - stage: build
       services:
         - docker
-      script:
-        - docker build -t $IMAGE:$TRAVIS_COMMIT --build-arg "REVISION=$TRAVIS_COMMIT" --build-arg "BRANCH=$TRAVIS_BRANCH" .
-        - docker tag $IMAGE:$TRAVIS_COMMIT $IMAGE:latest
-      after_script: |
+      script: |
         set -ex
+        docker build -t $IMAGE:$TRAVIS_COMMIT --build-arg "REVISION=$TRAVIS_COMMIT" --build-arg "BRANCH=$TRAVIS_BRANCH" .
+        docker tag $IMAGE:$TRAVIS_COMMIT $IMAGE:latest
+
         if [ "$TRAVIS_BRANCH" == "master" ]; then
           echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-          docker push -t $IMAGE:$TRAVIS_COMMIT
-          docker push -t $IMAGE:latest
-        else
-          echo "Not master; means no push required."
+          docker push $IMAGE:$TRAVIS_COMMIT
+          docker push $IMAGE:latest
         fi
 
     - stage: test:kubernetes
