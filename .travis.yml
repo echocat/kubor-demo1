@@ -1,26 +1,24 @@
-language: go
-go:
-  - 1.12.x
-install: skip
 os:
   - linux
-services:
-  - docker
 env:
   global:
     - CGO_ENABLED=0
     - GOOS=linux
     - GOARCH=amd64
     - IMAGE=levertonai/kubor-demo1
-script: skip
 
 jobs:
   include:
     - stage: test:unit
+      language: go
+      go:
+        - 1.12.x
       script:
         - go test -v ./...
 
     - stage: build
+      services:
+        - docker
       script:
         - docker build -t $IMAGE:$TRAVIS_COMMIT --build-arg "REVISION=$TRAVIS_COMMIT" --build-arg "BRANCH=$TRAVIS_BRANCH" .
         - docker tag $IMAGE:$TRAVIS_COMMIT $IMAGE:latest
