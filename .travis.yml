@@ -6,6 +6,8 @@ env:
     - GOOS=linux
     - GOARCH=amd64
     - IMAGE=levertonai/kubor-demo1
+    - KUBOR_RELEASE=$TRAVIS_COMMIT
+    - KUBOR_LOG_COLOR_MODE=always
 
 jobs:
   include:
